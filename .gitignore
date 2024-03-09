@@ -1,0 +1,6 @@
+server/__pycache__
+
+datasets/raw/*.pdf
+datasets/raw/*.zip
+datasets/raw/comunas.geojson
+datasets/raw/comunas.csv
