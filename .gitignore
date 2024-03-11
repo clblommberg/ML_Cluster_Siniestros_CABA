@@ -4,3 +4,9 @@ datasets/raw/*.pdf
 datasets/raw/*.zip
 datasets/raw/comunas.geojson
 datasets/raw/comunas.csv
+datasets/raw/informacion-censal-por-radio-2001.csv
+datasets/raw/informacion-censal-por-radio-2001.xlsx
+datasets/raw/informacion-censal-por-radio-2001.zip
+datasets/raw/informacion-censal-por-radio-2010.xlsx
+datasets/raw/informacion-censal-por-radio-2010.zip
+datasets/raw/caba_radios_censales.geojson

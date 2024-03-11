@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean
 from sqlalchemy.dialects.postgresql import ARRAY
 from conexion import Base, engine
-
+from geoalchemy2 import Geometry
 from sqlalchemy.orm import declarative_base
 class Homicidios(Base):
     __tablename__ = "homicidios_h"
@@ -43,6 +43,28 @@ class Comunas(Base):
     barrios = Column(String)
     perimetro = Column(Float)
     area = Column(Float)
+
+# Definir la clase del modelo
+class Censo(Base):
+    __tablename__ = 'censo_l'
+
+    id_censo = Column(Integer, primary_key=True, index=True)
+    wkt = Column(Geometry('MULTIPOLYGON'))
+    id = Column(Integer)
+    co_frac_ra = Column(String)
+    comuna = Column(Integer)
+    fraccion = Column(Integer)
+    radio = Column(Integer)
+    total_pob = Column(Integer)
+    t_varon = Column(Integer)
+    t_mujer = Column(Integer)
+    t_vivienda = Column(Integer)
+    v_particul = Column(Integer)
+    v_colectiv = Column(Integer)
+    t_hogar = Column(Integer)
+    h_con_nbi = Column(Integer)
+    h_sin_nbi = Column(Integer)
+
 
 # Aquí se crea la tabla en la base de datos si no existe
 Base.metadata.create_all(bind=engine)
