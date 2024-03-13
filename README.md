@@ -7,7 +7,7 @@ Este proyecto tiene como objetivo analizar los datos de siniestros viales fatale
 - Datasets y Recursos de Análisis `/datasets`.
 - Código fuente en Python para la descarga, preprocesamiento, análisis y visualización de datos `/notebooks`.
 - Modelo sqlalchemy en el proyecto migrados a PosgreSQL `/server`.
-- Dashboard del proyecto:
+- Dashboard del proyecto KPI 10% reducción Siniestros Viales Semestre Anterior y KPI 7% reducción Siniestros Viales tipo Moto :
 <br>
 
 **[Tableau Siniestros Fatales](https://public.tableau.com/app/profile/claudio.quispe/viz/sinistrosdb/SiniestrosViales?publish=yes)**
