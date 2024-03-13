@@ -1,177 +1,70 @@
-Como especialista en ciencia de datos, manejaría los campos de fecha y hora del siguiente modo:
+# Análisis de Siniestros Viales en la región de CABA en los periodos 2016 y 2021
 
-```bash
-pip install panel==1.3.8 bokeh==3.3.4 hvplot==0.9.2 folium==0.16.0 plotly==5.19.0 dash-ag-grid==31.0.1 dash==2.16.1 dash-bootstrap-components==1.5.0 yfinance==0.2.37
-```
+## Descripción
+Este proyecto tiene como objetivo analizar los datos de siniestros viales fatales (homicidios) en la Ciudad de Buenos Aires, Argentina. Los datos provienen de diferentes fuentes gubernamentales y contienen información sobre las víctimas, las ubicaciones geográficas, las características de los siniestros y los datos demográficos de las comunas de la ciudad.
 
-1. **Separar la columna `fecha` en varias columnas**: La columna `fecha` contiene varios componentes (año, mes, día) combinados en un solo valor de cadena de texto. Para facilitar el análisis, es recomendable separar estos componentes en columnas individuales. Puedo crear tres nuevas columnas: `anio`, `mes` y `dia`.
+## Contenido
+- Datasets y Recursos de Análisis `/datasets`.
+- Código fuente en Python para la descarga, preprocesamiento, análisis y visualización de datos `/notebooks`.
+- Modelo sqlalchemy en el proyecto migrados a PosgreSQL `/server`.
+- Dashboard del proyecto:
+<br>
 
-```python
-df['anio'] = pd.to_datetime(df['fecha']).dt.year
-df['mes'] = pd.to_datetime(df['fecha']).dt.month
-df['dia'] = pd.to_datetime(df['fecha']).dt.day
-```
-
-2. **Separar la columna `hora` en varias columnas**: De manera similar a la columna `fecha`, la columna `hora` contiene la hora y los minutos combinados. Puedo crear dos nuevas columnas: `hora` y `minuto`.
-
-```python
-df['hora'] = pd.to_datetime(df['hora'], format='%H:%M:%S').dt.hour
-df['minuto'] = pd.to_datetime(df['hora'], format='%H:%M:%S').dt.minute
-```
-
-3. **Convertir las columnas de fecha y hora a formato de fecha y hora adecuado**: Una vez que tengo columnas separadas para año, mes, día, hora y minuto, puedo crear una nueva columna `fecha_hora` que combine estos componentes en un formato de fecha y hora adecuado.
-
-```python
-df['fecha_hora'] = pd.to_datetime(dict(year=df['anio'], month=df['mes'], day=df['dia'], hour=df['hora'], minute=df['minuto']))
-```
-
-4. **Eliminar las columnas originales `fecha` y `hora`**: Después de crear las nuevas columnas separadas y la columna `fecha_hora`, puedo eliminar las columnas originales `fecha` y `hora` si ya no son necesarias.
-
-```python
-df.drop(['fecha', 'hora'], axis=1, inplace=True)
-```
-
-5. **Aplicar formatos de fecha y hora según sea necesario**: Dependiendo de los requisitos del análisis, puedo aplicar formatos específicos a las columnas de fecha y hora utilizando el método `dt.strftime()` de pandas.
-
-```python
-df['fecha_formato'] = df['fecha_hora'].dt.strftime('%Y-%m-%d')
-df['hora_formato'] = df['fecha_hora'].dt.strftime('%H:%M')
-```
-
-Estos pasos garantizarán que los campos de fecha y hora estén en un formato adecuado y separado para un análisis más efectivo. Además, tener columnas separadas para año, mes, día, hora y minuto facilitará la realización de operaciones y cálculos relacionados con fechas y horas, como filtrar por rangos de fechas, agrupar por períodos de tiempo, calcular duraciones, etc.
-
-```python
-# Crear una figura y ejes
-fig, ax = plt.subplots(figsize=(12, 6))
-
-# Graficar barras apiladas para valores nulos y raros
-ax.bar(reg_valores_raros_c['Nombre Columna'], reg_valores_raros_c['Total Nulos'], label='Valores Nulos')
-ax.bar(reg_valores_raros_c['Nombre Columna'], reg_valores_raros_c['Total Raros'], bottom=reg_valores_raros_c['Total Nulos'], label='Valores Raros')
-
-# Configurar etiquetas y título
-ax.set_xlabel('Columna')
-ax.set_ylabel('Cantidad')
-ax.set_title('Valores Nulos y Valores Raros')
-
-# Rotar las etiquetas del eje x
-plt.xticks(rotation=90)
-
-# Agregar leyenda
-ax.legend()
-
-# Ajustar el espaciado entre subgráficos
-plt.subplots_adjust(bottom=0.3)
-
-# Mostrar el gráfico
-plt.show()
-```
----
-## LEER GEOESPACIALES EN POSTGRES
-En sistemas Windows, la instalación de PostGIS puede ser un poco diferente. Aquí hay una guía paso a paso para instalar PostGIS en PostgreSQL en Windows:
-
-1. **Descargar PostGIS Binaries:**
-   - Visita la [página de descargas de PostGIS](https://postgis.net/windows_downloads/) y selecciona la versión que corresponde a tu versión de PostgreSQL y arquitectura (32-bit o 64-bit).
-
-2. **Instalar PostGIS Binaries:**
-   - Ejecuta el instalador que descargaste y sigue las instrucciones del asistente de instalación.
-
-3. **Asegurar la ubicación del archivo postgis.control:**
-   - Después de la instalación, verifica si el archivo `postgis.control` está en la carpeta correcta. Puede estar en una ubicación similar a:
-     ```
-     C:\Program Files\PostgreSQL\<version>\share\extension\
-     ```
-     Asegúrate de que este archivo exista.
-
-4. **Agregar la extensión PostGIS desde PostgreSQL:**
-   - Abre tu consola de PostgreSQL y ejecuta:
-     ```sql
-     CREATE EXTENSION IF NOT EXISTS postgis;
-     ```
-
-   - Si recibes algún error relacionado con la ruta del archivo `postgis.control`, puedes proporcionar la ruta completa del archivo. Por ejemplo:
-     ```sql
-     CREATE EXTENSION IF NOT EXISTS postgis FROM 'C:\Program Files\PostgreSQL\<version>\share\extension\postgis.control';
-     ```
-
-Con estos pasos, deberías poder instalar y habilitar la extensión PostGIS en tu base de datos PostgreSQL en Windows. Luego, intenta ejecutar nuevamente tu script de Python.
----
-
-```sql
-SELECT    
-    comuna,
-    SUM(total_pob) AS total_total_pob,
-    SUM(t_varon) AS total_t_varon,
-    SUM(t_mujer) AS total_t_mujer,
-    SUM(t_vivienda) AS total_t_vivienda,
-    SUM(v_particul) AS total_v_particul,
-    SUM(v_colectiv) AS total_v_colectiv,
-    SUM(t_hogar) AS total_t_hogar,
-    SUM(h_con_nbi) AS total_h_con_nbi,
-    SUM(h_sin_nbi) AS total_h_sin_nbi
-FROM censo_l
-GROUP BY comuna
-```
----
-PostgreSQL puede almacenar datos geoespaciales en formato geométrico, y generalmente utiliza el tipo de datos `geometry` o `geography` para representar estas geometrías. Cuando insertas datos geoespaciales en PostgreSQL, es posible que hayas utilizado el formato WKT (Well-Known Text) o algún otro formato reconocido por PostgreSQL.
-
-Si almacenas tus datos en formato decimal, es probable que sea una elección específica para la precisión numérica. PostgreSQL ofrece opciones para manejar la precisión y la escala de los datos numéricos, y esto puede afectar cómo se almacenan los valores.
-
-Para revertir el proceso y exportar datos geoespaciales a Tableau, puedes seguir estos pasos generales:
-
-1. **Consulta de Datos:** Utiliza una consulta SQL para recuperar tus datos geoespaciales desde PostgreSQL. Asegúrate de obtener el campo geométrico o geográfico en formato WKT.
-
-   ```sql
-   SELECT id, ST_AsText(geom_column) AS wkt_geom FROM your_table;
-   ```
-
-   Reemplaza `your_table` y `geom_column` con los nombres reales en tu base de datos.
-
-2. **Exportar a Tableau:** En Tableau, puedes conectarte a tu base de datos PostgreSQL y utilizar la consulta que has creado para extraer los datos geoespaciales. Tableau es compatible con datos geoespaciales y debería reconocer la geometría o la geografía correctamente.
-
-3. **Configuración en Tableau:** Una vez que hayas importado tus datos, es posible que necesites configurar el tipo de datos en Tableau para que reconozca la información geoespacial. Asegúrate de que Tableau interprete correctamente el campo de geometría o geografía.
-
-Ten en cuenta que estos son pasos generales, y los detalles exactos pueden depender de la versión específica de PostgreSQL y Tableau que estás utilizando, así como de la estructura exacta de tus datos. Si encuentras problemas específicos durante el proceso, puede ser útil revisar la documentación de PostgreSQL y Tableau o buscar ayuda en foros especializados.
+**[Tableau Siniestros Fatales](https://public.tableau.com/app/profile/claudio.quispe/viz/sinistrosdb/SiniestrosViales?publish=yes)**
 
 
-```sql
-#CREATE EXTENSION IF NOT EXISTS postgis;
-SELECT * FROM censo_l LIMIT 3;
 
-SELECT * FROM spatial_ref_sys LIMIT 3;
+**Análisis Exploratorio de Datos (EDA)**<br>
+- Se han realizado análisis descriptivos de cada tabla, destacando estadísticas como la moda, mediana y media para variables clave.<br>
+- El análisis de correlación en el modelo de "Siniestros Fatales" revela patrones significativos. La correlación muy fuerte (0.98) entre "anio" e "id" indica una relación temporal positiva. La correlación moderada negativa (-0.68) entre "comuna_x" y "longitud" sugiere una posible relación inversa entre la comuna y la longitud geográfica.<br>
 
-SELECT column_name
-FROM information_schema.columns
-WHERE table_name = 'spatial_ref_sys';
+En términos del impacto en la población total ("total_pob"), las correlaciones positivas de 0.31 y 0.45 con "area" y "perimetro", respectivamente, sugieren que un mayor área y perímetro están asociados con una población total más grande.
+**Detección de Valores Anómalos y Nulos**<br>
+- Se han identificado y registrado valores faltantes en los DataFrames, y se ha generado un resumen de la presencia de valores `'SD', 'No especificado', 'sd' , '', 'Point (. .)']`.
+- El análisis de valores faltantes revela que la columna "Altura" en el DataFrame "homicidios" tiene el mayor porcentaje de valores faltantes (81.47%). La columna "FECHA_FALLECIMIENTO" en "victima_h" no tiene valores nulos, pero tiene un 9.48% de valores raros. Otros porcentajes de valores faltantes oscilan entre 0.14% y 9.48%. Estos resultados señalan áreas críticas para la imputación o eliminación de datos.<br>
 
-SELECT    
-    comuna,
-    SUM(total_pob) AS total_total_pob,
-    SUM(t_varon) AS total_t_varon,
-    SUM(t_mujer) AS total_t_mujer,
-    SUM(t_vivienda) AS total_t_vivienda,
-    SUM(v_particul) AS total_v_particul,
-    SUM(v_colectiv) AS total_v_colectiv,
-    SUM(t_hogar) AS total_t_hogar,
-    SUM(h_con_nbi) AS total_h_con_nbi,
-    SUM(h_sin_nbi) AS total_h_sin_nbi
-FROM censo_l
-GROUP BY comuna;
+**Interpretación de Modelos Relacionales (DBML)**<br>
+- Se ha proporcionado un modelo relacional en DBML para representar las relaciones entre las tablas homicidios_h, victimas_l, comunas_l, y censo_l.
+- Cada tabla tiene sus columnas definidas con tipos de datos adecuados y relaciones clave para facilitar futuras consultas.
 
-SELECT id, ST_AsText(wkt) AS wkt_geom FROM censo_l;
-SELECT comuna, ST_AsText(wkt) AS wkt_geom FROM censo_l;
-```
----
-La información proporcionada "34°37'54.8"S 58°23'25.5"W" corresponde a coordenadas geográficas expresadas en grados, minutos y segundos. Para convertir estas coordenadas a formato decimal (latitud y longitud en decimales, que es comúnmente utilizado en sistemas de información geográfica), puedes seguir estos pasos:
+**Análisis de clústeres:**
 
-1. **Latitud:**
-   - La parte "34°37'54.8"S" indica una latitud de 34 grados, 37 minutos y 54.8 segundos al sur.
-   - La latitud en formato decimal se obtiene sumando los grados, los minutos convertidos a decimal (dividiendo por 60) y los segundos convertidos a decimal (dividiendo por 3600).
-   - Calculando: \(34 + \frac{37}{60} + \frac{54.8}{3600}\).
+En cuanto al análisis de clústeres, el código aplica dos enfoques principales:
 
-2. **Longitud:**
-   - La parte "58°23'25.5"W" indica una longitud de 58 grados, 23 minutos y 25.5 segundos al oeste.
-   - La longitud en formato decimal se obtiene sumando los grados, los minutos convertidos a decimal (dividiendo por 60) y los segundos convertidos a decimal (dividiendo por 3600).
-   - Calculando: \(58 + \frac{23}{60} + \frac{25.5}{3600}\).
+ [![output-cluster.png](https://i.postimg.cc/05KrTTdt/output-cluster.png)](https://postimg.cc/23mzvXtv)
 
-Realizando los cálculos, obtendrías las coordenadas en formato decimal para este punto específico.
----
+1. **Método del codo (Elbow Method) con K-Means:**
+   - Se utiliza el método del codo para determinar el número óptimo de clústeres a utilizar en el algoritmo K-Means.
+   - Se escalan los datos numéricos utilizando `StandardScaler` antes de aplicar el algoritmo K-Means.
+   - Cluster 0 (Alto Riesgo): Este conjunto exhibe un riesgo elevado con un promedio de aproximadamente 315.76 víctimas, concentradas en comunas de baja latitud. Los siniestros fatales suelen acontecer en áreas densamente pobladas, con un promedio de población total de alrededor de 20.5 millones, y presentan una proporción significativa de varones, aproximadamente el 30.69%. Además, hay un leve sesgo hacia el uso de avenidas como tipo de calle, con un promedio del 29.05%. La edad promedio de las víctimas es relativamente joven, alrededor de 16 a 18 años.
+
+   - Cluster 1 (Moderado Riesgo y Alta Cantidad de Víctimas): Este grupo presenta un riesgo moderado con una cantidad significativa de víctimas, con un promedio de aproximadamente 350.36. Estos siniestros ocurren principalmente en comunas con latitud y longitud moderadas. Asimismo, están asociados con áreas más pobladas, con un promedio de población total de aproximadamente 14.8 millones, y muestran un equilibrio relativo entre varones y mujeres, con un promedio del 50.28%. Se observa una mayor diversidad en los tipos de calles, indicando posibles incidentes en entornos diversos, con un promedio del 12.89%. La edad promedio de las víctimas es moderada, alrededor de 13 -71 años.
+
+   - Cluster 2 (Bajo Riesgo y Cantidad Moderada de Víctimas): Este conjunto, con un promedio de aproximadamente 362.31 víctimas, se asocia con comunas de mayor latitud y longitud. Los siniestros tienden a ocurrir en áreas menos densamente pobladas, con un promedio de población total de alrededor de 14.5 millones, y muestran un equilibrio relativo entre varones y mujeres, con un promedio del 42.03%. La presencia de acusados relacionados con cargas y motos sugiere incidentes de tráfico menos complejos, con promedios de aproximadamente 0.22 y 5.17%, respectivamente. La edad promedio de las víctimas es moderada, alrededor de 11-26 años.
+
+   - Cluster 3 (Moderado Riesgo con Alta Cantidad de Víctimas): Este grupo presenta un riesgo moderado con una cantidad alta de víctimas, con un promedio de aproximadamente 362.78. Los siniestros tienden a ocurrir en comunas con latitud y longitud moderadas y áreas densamente pobladas, con un promedio de población total de alrededor de 11.8 millones. Se observa una proporción relativamente equitativa de varones y mujeres, con un promedio del 32.17%. La presencia de acusados relacionados con cargas y motos sugiere una variedad de incidentes de tráfico, con promedios de aproximadamente 5.62% cada uno. La edad promedio de las víctimas es moderada, alrededor de 10 - 46 años.
+
+   - Cluster 4 (Bajo Riesgo y Cantidad Baja de Víctimas): Este conjunto, con un promedio de aproximadamente 300.33 víctimas, se asocia con comunas de mayor latitud y longitud. Los siniestros tienden a ocurrir en áreas menos densamente pobladas, con un promedio de población total de alrededor de 15.3 millones, y presentan una proporción relativamente equitativa de varones y mujeres, con un promedio del 31.08%. La presencia de acusados relacionados con bicicletas y peatones sugiere incidentes de menor gravedad en entornos menos urbanos, con promedios de aproximadamente 31.25% y 16.67%, respectivamente. La edad promedio de las víctimas es relativamente joven, alrededor de 11 - 35 años.
+
+
+2. **Análisis de Componentes Principales (PCA):**
+   - Se aplica PCA para reducir la dimensionalidad de los datos y facilitar la visualización.
+   - Se grafica un diagrama de dispersión con las dos principales componentes, coloreando los puntos según su clúster asignado por K-Means.
+   - El Análisis  ha permitido reducir la dimensionalidad de los datos, proporcionando una visión más clara de las relaciones y patrones subyacentes en los siniestros fatales. Al observar las estadísticas del modelo PCA, podemos destacar que las dos componentes principales (pca1 y pca2) tienen una media cercana a cero y desviaciones estándar moderadas, lo que sugiere una distribución equilibrada y una variabilidad significativa en los datos proyectados.<br>
+
+   - La media cercana a cero en ambos componentes sugiere una buena centralización de los datos. La desviación estándar indica una dispersión moderada alrededor de la media, con valores mínimo y máximo que abarcan un rango significativo.<br>
+
+   - En el gráfico de dispersión resultante del PCA, se observa una separación clara entre los cinco clusters (representados por colores distintos). La dispersión y orientación de los puntos indican la varianza y la correlación entre las variables originales en el espacio reducido. Este enfoque permite visualizar la estructura inherente en los datos y puede facilitar la interpretación de patrones y relaciones entre observaciones.<br>
+
+
+Estas técnicas de clusterización permiten identificar patrones y agrupar los datos en función de sus similitudes. Los resultados obtenidos pueden ser útiles para segmentar los siniestros viales, identificar factores comunes o realizar análisis más específicos para cada clúster.
+Es importante destacar que el código también incluye visualizaciones adicionales, como mapas de calor, gráficos de barras y gráficos de líneas, que brindan una comprensión más profunda de los datos y las relaciones entre las variables.
+
+
+## Requisitos
+- Python 3.10.11
+- Bibliotecas Python: requests, gzip, shutil, tqdm, BeautifulSoup, datetime, math, pathlib, pandas, numpy, re, unidecode, matplotlib, seaborn, plotly, IPython, geopandas, geojson, shapely, sklearn.
+- PostgreSQL (PostgreSQL) 15.6
+- Tableau Desktop 2024.1.0
+## Modelo Relacional PostgreSQL
+[![modelo-relacional.png](https://i.postimg.cc/wxtjhx8F/modelo-relacional.png)](https://postimg.cc/s1rzzr2Z)
