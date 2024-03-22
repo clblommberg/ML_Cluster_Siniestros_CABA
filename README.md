@@ -68,3 +68,14 @@ Es importante destacar que el código también incluye visualizaciones adicional
 - Tableau Desktop 2024.1.0
 ## Modelo Relacional PostgreSQL
 [![modelo-relacional.png](https://i.postimg.cc/wxtjhx8F/modelo-relacional.png)](https://postimg.cc/s1rzzr2Z)
+
+
+Claro, puedo mejorar las referencias. Aquí tienes una versión mejorada:
+
+### Referencias
+
+- soyHenry/PI_ML_OPS at FT. (2024). GitHub Repository. [Link](https://github.com/soyHenry/PI_ML_OPS/tree/FT)
+- Frogames. (2014). "Masterclass En Inteligencia Artificial: Con Proyectos Reales." Frogames Formación. [Enlace](https://cursos.frogamesformacion.com/courses/ia-moderna). Consultado el 22 de Marzo de 2024.
+
+
+‌
